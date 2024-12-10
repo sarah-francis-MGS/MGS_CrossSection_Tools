@@ -118,6 +118,13 @@ if desc.hasZ == False:
 if display_system == "stacked":
     FieldExists(profiles_3d, 'mn_et_id')
 
+spatialref = arcpy.Describe(xsln_file).spatialReference
+if spatialref.name == "Unknown":
+    printerror("{0} file has an unknown spatial reference. Continuing may result in errors.".format(os.path.basename(xsln_file)))
+else:
+    printit("Spatial reference set as {0} to match {1} file.".format(spatialref.name, os.path.basename(xsln_file)))
+
+
 #%% 
 # 5 Create temporary polygon file and add unique ID field to use for join later
 
@@ -170,7 +177,7 @@ arcpy.management.MultipartToSinglepart(output_line_fc_temp_multi, output_line_fc
 #%% 7 Create empty line file and add fields
 
 printit("Creating empty line file for geometry creation.")
-arcpy.management.CreateFeatureclass(output_dir, output_name, 'POLYLINE')
+arcpy.management.CreateFeatureclass(output_dir, output_name, 'POLYLINE', '', 'DISABLED', 'DISABLED', spatialref)
 if display_system == "stacked":
     fields = [[xsec_id_field, 'TEXT', '', 5], ["mn_et_id", "TEXT", '', 5], [unique_id_field, 'LONG']]
 if display_system == "traditional":
@@ -273,7 +280,7 @@ if run_location == "Pro":
     arcpy.SetParameterAsText(8, output_point_fc)
 
 printit("Creating empty point file for geometry creation.")
-arcpy.management.CreateFeatureclass(output_dir, output_name, 'POINT')
+arcpy.management.CreateFeatureclass(output_dir, output_name, 'POINT', '', 'DISABLED', 'DISABLED', spatialref)
 if display_system == "stacked":
     fields = [[xsec_id_field, 'TEXT', '', 5],["mn_et_id", "TEXT", '', 5], [unique_id_field, "LONG"]]
 if display_system == "traditional":

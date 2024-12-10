@@ -160,7 +160,8 @@ arcpy.management.MultipartToSinglepart(output_fc_temp_multi, output_fc_temp)
 output_poly_geom = os.path.join(output_dir, output_name + "_temp_geom")
 
 printit("Creating empty line file for geometry creation.")
-arcpy.management.CreateFeatureclass(output_dir, output_name + "_temp_geom", 'POLYGON')
+#arcpy.management.CreateFeatureclass(output_dir, output_name + "_temp_geom", 'POLYGON', '', 'DISABLED', 'DISABLED')
+arcpy.management.CreateFeatureclass(output_dir, output_name + "_temp_geom", 'POLYGON', '', 'DISABLED', 'DISABLED', spatialref)
 fields = [[xsec_id_field, 'TEXT', '', 5], [unique_id_field, "LONG"]]
 if display_system == "stacked":
     fields.append(["mn_et_id", "TEXT", '', 5])
@@ -211,6 +212,7 @@ if display_system == "traditional":
     printit("Creating feature dataset for storing temporary lines by cross section number.")
     output_gdb_location = os.path.dirname(output_poly_geom)
     lines_byxsec = os.path.join(output_gdb_location, "lines_by_xsec_temp")
+    #arcpy.management.CreateFeatureDataset(output_gdb_location, "lines_by_xsec_temp")
     arcpy.management.CreateFeatureDataset(output_gdb_location, "lines_by_xsec_temp", spatialref)
     
     #2D y coordinates are the same for every box

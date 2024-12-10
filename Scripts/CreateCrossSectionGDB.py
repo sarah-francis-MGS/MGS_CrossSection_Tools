@@ -96,6 +96,7 @@ else:
 
 #%%
 # 3 Create GDB(s)
+
 arcpy.env.overwriteOutput = True
 
 output_dir = os.path.dirname(output_gdb)
@@ -112,7 +113,7 @@ if qstrat_editing_gdb == True:
     printit("Adding blank stratlines file to editing gdb.")
     arcpy.management.CreateFeatureclass(editing_gdb, "stratlines", "POLYLINE")
     stratlines = os.path.join(editing_gdb, 'stratlines')
-    arcpy.management.AddField(stratlines, 'unit', 'TEXT')
+    arcpy.management.AddField(stratlines, 'MapUnit', 'TEXT')
 
 #%% 
 # 4 Copy over county boundary and bedrock topo
@@ -143,6 +144,10 @@ if spatialref.name == "Unknown":
     printerror("{0} file has an unknown spatial reference. Continuing may result in errors.".format(os.path.basename(county_boundary_out)))
 else:
     printit("Spatial reference set as {0} to match {1} file.".format(spatialref.name, os.path.basename(county_boundary_out)))
+
+#add projection information to stratlines
+if qstrat_editing_gdb == True:
+    arcpy.management.DefineProjection(stratlines, spatialref)
 
 #%% 
 # 6 Buffer county boundary by project buffer parameter(mapping boundary)

@@ -90,9 +90,17 @@ else:
 out_fd = os.path.join(out_gdb, "projected_xsec_data")
 printit("Output feature dataset is {0}".format(out_fd))
 
+spatialref = arcpy.Describe(in_fc).spatialReference
+if spatialref.name == "Unknown":
+    printerror("{0} file has an unknown spatial reference. Continuing may result in errors.".format(os.path.basename(in_fc)))
+else:
+    printit("Spatial reference set as {0} to match {1} file.".format(spatialref.name, os.path.basename(in_fc)))
+
+
 if not arcpy.Exists(out_fd):
     printit("Projected data feature dataset does not exist. Creating.")
-    arcpy.management.CreateFeatureDataset(out_gdb, "projected_xsec_data")
+    arcpy.management.CreateFeatureDataset(out_gdb, "projected_xsec_data", spatialref)
+    #arcpy.management.CreateFeatureDataset(out_gdb, "projected_xsec_data")
 
 #%% 
 # 4 Set additional parameters and data qc
@@ -105,6 +113,8 @@ printit("Feature geometry is {0}.".format(shape))
 
 #check that xsln file has mn_et_id
 FieldExists(xsln_fc, 'mn_et_id')
+
+
 
 #%% 
 # 5 Create temporary polygon file for attaching mn_et_id to input data. Save output as temp_fc
@@ -198,7 +208,8 @@ out_fc = os.path.join(out_fd, output_name)
 if run_location == "Pro":
     arcpy.SetParameterAsText(3, out_fc)
 
-arcpy.management.CreateFeatureclass(out_fd, output_name, shape)
+arcpy.management.CreateFeatureclass(out_fd, output_name, shape, '', 'DISABLED', 'DISABLED', spatialref)
+#arcpy.management.CreateFeatureclass(out_fd, output_name, shape, '', 'DISABLED', 'DISABLED')
 arcpy.management.AddFields(out_fc, [[unique_id_field, 'LONG'], ['mn_et_id', 'TEXT']])
 
 #%% 

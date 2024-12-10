@@ -99,6 +99,13 @@ printit("Feature geometry is {0}.".format(shape))
 county_relief = 700
 out_vertical_exaggeration = 50
 
+spatialref = arcpy.Describe(xsln_fc).spatialReference
+if spatialref.name == "Unknown":
+    printerror("{0} file has an unknown spatial reference. Continuing may result in errors.".format(os.path.basename(xsln_fc)))
+else:
+    printit("Spatial reference set as {0} to match {1} file.".format(spatialref.name, os.path.basename(xsln_fc)))
+
+
 #%% 
 # 4 Check for mn_et_id field 
 
@@ -145,7 +152,7 @@ else:
 arcpy.env.overwriteOutput = True
 filename = os.path.basename(out_fc)
 filepath = os.path.dirname(out_fc)
-arcpy.management.CreateFeatureclass(filepath, filename, shape)
+arcpy.management.CreateFeatureclass(filepath, filename, shape, '', 'DISABLED', 'DISABLED', spatialref)
 #add etid field and unique id join field
 arcpy.management.AddField(out_fc, in_fc_etid_field, 'TEXT')
 arcpy.management.AddField(out_fc, unique_id_field, 'LONG')

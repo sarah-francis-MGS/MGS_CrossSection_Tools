@@ -123,6 +123,13 @@ if display_system == "stacked":
 if display_system == "traditional":
     vertical_exaggeration = int(vertical_exaggeration_in)
 
+spatialref = arcpy.Describe(xsln_file).spatialReference
+if spatialref.name == "Unknown":
+    printerror("{0} file has an unknown spatial reference. Continuing may result in errors.".format(os.path.basename(xsln_file)))
+else:
+    printit("Spatial reference set as {0} to match {1} file.".format(spatialref.name, os.path.basename(xsln_file)))
+
+
 #%% 
 # 4 set min and max extents
 if display_system == "traditional":
@@ -180,7 +187,7 @@ if run_location == "Pro":
 #output_name = 'elevation_ref_lines' + "_" + str(vertical_exaggeration) + "x"
 
 printit("Creating empty line file for geometry creation.")
-arcpy.management.CreateFeatureclass(output_dir, out_line_name, 'POLYLINE')
+arcpy.management.CreateFeatureclass(output_dir, out_line_name, 'POLYLINE', '', 'DISABLED', 'DISABLED', spatialref)
 
 #%% 5 add fields
 label_field = "label"
@@ -407,7 +414,7 @@ if display_system == "traditional":
     printit("Creating x coordinate reference line feature class")
     fc_name = "xcoord_ref_lines" + "_" + str(vertical_exaggeration) + "x"
 
-    arcpy.management.CreateFeatureclass(output_dir, fc_name, 'POLYLINE')
+    arcpy.management.CreateFeatureclass(output_dir, fc_name, 'POLYLINE', '', 'DISABLED', 'DISABLED', spatialref)
     out_fc = os.path.join(output_dir, fc_name)
     
     if run_location == "Pro":
@@ -537,7 +544,7 @@ if display_system == "stacked":
         arcpy.SetParameterSymbology(14, poly_symbol)
 
     printit("Creating empty polygon file for geometry creation.")
-    arcpy.management.CreateFeatureclass(output_dir, output_name, 'POLYGON')
+    arcpy.management.CreateFeatureclass(output_dir, output_name, 'POLYGON', '', 'DISABLED', 'DISABLED', spatialref)
     arcpy.management.AddField(out_poly_fc, 'mn_et_id', "TEXT")
 
     printit("Creating polygon geometry.")

@@ -311,7 +311,7 @@ if display_system == "stacked":
 if display_system == "traditional":
     output_name = "lixpys_2d_line_" + str(vertical_exaggeration) + "x"
 
-arcpy.management.CreateFeatureclass(workspace, output_name, "POLYLINE", '', 'DISABLED', 'DISABLED')
+arcpy.management.CreateFeatureclass(workspace, output_name, "POLYLINE", '', 'DISABLED', 'DISABLED', spatialref)
 #set polyline shapefile filepath variable
 polylinefile_2d = os.path.join(workspace, output_name)
 

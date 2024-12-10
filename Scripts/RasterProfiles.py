@@ -165,7 +165,7 @@ for raster in rasters_list:
     if display_system == "traditional":
         profiles_2d_name = name + "_profiles2d" + "_" + str(vertical_exaggeration) + "x"
     profiles_2d = os.path.join(output_gdb_location, profiles_2d_name)
-    arcpy.management.CreateFeatureclass(output_gdb_location, profiles_2d_name, 'POLYLINE', '', 'DISABLED', 'DISABLED')
+    arcpy.management.CreateFeatureclass(output_gdb_location, profiles_2d_name, 'POLYLINE', '', 'DISABLED', 'DISABLED', spatialref)
     # Add fields to empty 2d profiles file
 
     arcpy.management.AddFields(profiles_2d, fields_2d)

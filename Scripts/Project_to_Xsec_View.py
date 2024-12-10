@@ -105,6 +105,13 @@ if display_system == "stacked":
 if display_system == "traditional":
     vertical_exaggeration = int(vertical_exaggeration_in)
 
+spatialref = arcpy.Describe(xsln).spatialReference
+if spatialref.name == "Unknown":
+    printerror("{0} file has an unknown spatial reference. Continuing may result in errors.".format(os.path.basename(xsln)))
+else:
+    printit("Spatial reference set as {0} to match {1} file.".format(spatialref.name, os.path.basename(xsln)))
+
+
 #%% 
 # 4 Read shape type of intersect_fc
 
@@ -206,7 +213,7 @@ if display_system == "stacked":
     fields.append(["mn_et_id", 'TEXT'])
 
 #create output for 2d line geometry
-arcpy.management.CreateFeatureclass(output_dir, line_output_name, 'POLYLINE')
+arcpy.management.CreateFeatureclass(output_dir, line_output_name, 'POLYLINE', '', 'DISABLED', 'DISABLED', spatialref)
 arcpy.management.AddFields(line_output_fc, fields)
 
 #if output_type == "point":
@@ -454,7 +461,7 @@ if output_type == "point":
     if display_system == "traditional":
         #create temp feature dataset for intersect points
         printit("Converting lines to points.")
-        arcpy.management.CreateFeatureDataset(output_dir, "temp_intersect_points")
+        arcpy.management.CreateFeatureDataset(output_dir, "temp_intersect_points", spatialref)
         temp_point_fd = os.path.join(output_dir, "temp_intersect_points")
         #create list of xsec ids
         id_list = []

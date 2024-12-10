@@ -95,13 +95,21 @@ else:
 
 #%% 
 # 3 Create projected data feature dataset inside editing gdb
+
+spatialref = arcpy.Describe(in_fc).spatialReference
+if spatialref.name == "Unknown":
+    printerror("{0} file has an unknown spatial reference. Continuing may result in errors.".format(os.path.basename(in_fc)))
+else:
+    printit("Spatial reference set as {0} to match {1} file.".format(spatialref.name, os.path.basename(in_fc)))
+
 #only create if it does not already exist
 out_fd = os.path.join(out_gdb, "projected_xsec_data")
 printit("Output feature dataset is {0}".format(out_fd))
 
 if not arcpy.Exists(out_fd):
     printit("Projected data feature dataset does not exist. Creating.")
-    arcpy.management.CreateFeatureDataset(out_gdb, "projected_xsec_data")
+    arcpy.management.CreateFeatureDataset(out_gdb, "projected_xsec_data", spatialref)
+    #arcpy.management.CreateFeatureDataset(out_gdb, "projected_xsec_data")
 
 #%% 
 # 4 Let user know that tool will delete any outputs with the same name
@@ -265,7 +273,8 @@ out_fc = os.path.join(out_fd, out_fc_name)
 
 printit("Creating empty output feature class {0}.".format(out_fc))
 
-arcpy.management.CreateFeatureclass(out_fd, out_fc_name, shape)
+#arcpy.management.CreateFeatureclass(out_fd, out_fc_name, shape, '', 'DISABLED', 'DISABLED')
+arcpy.management.CreateFeatureclass(out_fd, out_fc_name, shape, '', 'DISABLED', 'DISABLED', spatialref)
 arcpy.management.AddFields(out_fc, [[unique_id_field, 'LONG'], ['mn_et_id', 'TEXT']])
 
 #%% 
