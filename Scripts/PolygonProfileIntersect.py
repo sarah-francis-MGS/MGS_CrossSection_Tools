@@ -136,7 +136,7 @@ polygons = os.path.join(output_dir, input_name + "_temp")
 arcpy.conversion.ExportFeatures(polygons_orig, polygons)
 
 printit("Adding temporary join field.")
-unique_id_field = 'unique_id'
+unique_id_field = 'unique_id_join_temp'
 
 try:
     arcpy.management.AddField(polygons, unique_id_field, 'LONG')

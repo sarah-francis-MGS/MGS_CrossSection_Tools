@@ -9,8 +9,8 @@ This script creates polyline files that are used to visualize well lithologies
 along defined cross sections. Outputs are: a well stick diagram file in 3D with
 true x, y, and z coordinates, well stick diagram files (line and polygon format)
 in 2D cross-section space to use for cross-section creation and editing, and a
-well point file in 2D cross-section space. Data is retrieved from a well 
-point location feature class and a corresponding stratigraphy table with lithology 
+well point file in 2D cross-section space. Data is retrieved from a well
+point location feature class and a corresponding stratigraphy table with lithology
 and depth information. The two tables have a one-to-many relationship. The script
 will output data in the stacked or traditional display.
 '''
@@ -34,7 +34,7 @@ def printit(message):
 def printwarning(message):
     arcpy.AddWarning(message)
     print(message)
-        
+
 def printerror(message):
     arcpy.AddError(message)
     print(message)
@@ -45,7 +45,7 @@ def FileExists(file):
     if not arcpy.Exists(file):
         printerror("Error: {0} does not exist.".format(os.path.basename(file)))
     #else: printit("{0} found.".format(os.path.basename(file)))
-    
+
 def FieldExists(dataset, field_name):
     if field_name in [field.name for field in arcpy.ListFields(dataset)]:
         return True
@@ -62,11 +62,11 @@ def correctGeometry(file, geometry1, geometry2):
             printerror("Error: {0} does not have {1} geometry.".format(os.path.basename(file), geometry1))
     #else: printit("{0} has {1} geometry.".format(os.path.basename(file), geometry))
 
-# %% 
+# %%
 # 2 Set parameters to work in testing and compiled geopocessing tool
 
-# !!!!!!!!!!!!!!!!!!!!!! 
-#change the variable below if running in an IDE. 
+# !!!!!!!!!!!!!!!!!!!!!!
+#change the variable below if running in an IDE.
 # MAKE SURE TO CHANGE BACK TO "PRO" WHEN FINISHED
 #----------------------------------------------------------------
 #run_location = "ide"
@@ -100,13 +100,13 @@ else:
     wwpt_etid_field = 'et_id' #cross section ID field in well point file
     strat_wellid_field = 'relateid' #well ID number field in strat table
     wwpt_wellid_field = 'relateid' #well ID number field in well point file
-    buffer_dist = 500 
+    buffer_dist = 500
     display_system = "stacked" #"stacked" or "traditional"
     #parameter below only appears if display_system is "traditional"
     vertical_exaggeration_in = 50
     printit("Variables set with hard-coded parameters for testing.")
 
-#%% 
+#%%
 # 3 set county relief and vertical exaggeration variables for stacked display
 # county relief controls distance between cross sections
 #DO NOT edit these values, except in special cases
@@ -116,7 +116,7 @@ if display_system == "stacked":
 if display_system == "traditional":
     vertical_exaggeration = int(vertical_exaggeration_in)
 
-#%% 
+#%%
 # 4 Set 3d spatial reference based on xsln file
 
 spatialref = arcpy.Describe(xsln_file_orig).spatialReference
@@ -125,7 +125,7 @@ if spatialref.name == "Unknown":
 else:
     printit("Spatial reference set as {0} to match {1} file.".format(spatialref.name, os.path.basename(xsln_file_orig)))
 
-#%% 
+#%%
 # 5 Add mn_et_id field to wwpt file if it doesn't exist, for stacked only
 #strat table does not need et_id or mn_et_id for this code to work.
 #it will get these numbers and assign them based on matching well point.
@@ -142,7 +142,7 @@ if display_system == "stacked":
         printit("Adding mn_et_id field to well point file based on et_id in xsln file.")
         arcpy.management.JoinField(wwpt_file_orig, wwpt_etid_field, xsln_file_orig, xsln_etid_field, ['mn_et_id'])
 
-# %% 
+# %%
 # 6 Data QC
 
 #determine if input cross section lines have multipart features
@@ -208,7 +208,7 @@ with arcpy.da.SearchCursor(wwpt_file_orig, [wwpt_wellid_field, wwpt_etid_field])
         if etid not in wwpt_etid_list:
             wwpt_etid_list.append(etid)
 
-# Populate cross section line et_id list            
+# Populate cross section line et_id list
 with arcpy.da.SearchCursor(xsln_file_orig, [xsln_etid_field]) as xsln_records:
     for line in xsln_records:
         etid = line[0]
@@ -234,7 +234,7 @@ if listprint_len > 0:
     printit("Warning: {0} well points have no matching stratigraphy records. Well stick diagrams will not draw for these wells.".format(listprint_len))
 
 # Check that et_id fields in well point file have matching xsln et_id
-listprint = []      
+listprint = []
 for etid in wwpt_etid_list:
     if etid not in xsln_etid_list:
         listprint.append(etid)
@@ -243,14 +243,14 @@ if listprint_len > 0:
         printit("Warning: there are {0} et_id's in well point file that do not match any et_id's in cross section line file. Well point et_id's are: {1}".format(listprint_len, listprint))
 
 # Check that all cross section lines have matching well points
-listprint = []      
+listprint = []
 for etid in xsln_etid_list:
     if etid not in wwpt_etid_list:
         listprint.append(etid)
 listprint_len = len(listprint)
 if listprint_len > 0:
         printit("Warning: there are {0} cross section lines that do not have any associated well points. Cross section et_id's are: {1}".format(listprint_len, listprint))
-    
+
 # Check that well id in strat and well point files have the same data type
 if type(strat_wellid_list[0]) != type(wwpt_wellid_list[0]):
     printerror("Warning: strat table and well point file have mismatched data types in the well id field. Wells and stratigraphy records will not be matched correctly.")
@@ -259,8 +259,8 @@ if type(strat_wellid_list[0]) != type(wwpt_wellid_list[0]):
 wellid_is_numeric = True
 if type(strat_wellid_list[0]) == str:
     wellid_is_numeric = False
-  
-# %% 
+
+# %%
 # 9 List fields that are used in 3d line, 2d line, and 2d point
 
 # set field type of well id so code correctly handles text vs. numeric
@@ -269,21 +269,21 @@ if wellid_is_numeric:
 elif not wellid_is_numeric:
     well_id_field_type = 'TEXT'
 
-# fields needed in all output files    
-fields_base = [[strat_wellid_field, well_id_field_type], [xsln_etid_field, 'TEXT', '', 5], 
+# fields needed in all output files
+fields_base = [[strat_wellid_field, well_id_field_type], [xsln_etid_field, 'TEXT', '', 5],
                ['x_coord', 'DOUBLE'], ['y_coord', 'DOUBLE']]
 #add mn_et_id field for stacked display
 if display_system == "stacked":
     fields_base.append(['mn_et_id', 'TEXT', '', 5])
 
 # fields needed in polyline/polygon output files (both 2d and 3d versions)
-fields_strat = [['strat_oid', 'DOUBLE'], ['z_top', 'DOUBLE'], ['z_bot', 'DOUBLE']] 
+fields_strat = [['strat_oid', 'DOUBLE'], ['z_top', 'DOUBLE'], ['z_bot', 'DOUBLE']]
 
 # fields only needed in 2d files (point, polyline, and polygon)
 fields_2d = [['distance', 'FLOAT'], ['pct_dist', 'FLOAT']]
 
 
-# %% 
+# %%
 # 10 Create empty 3d polyline file
 
 arcpy.env.overwriteOutput = True
@@ -300,7 +300,7 @@ polyline_3d_fields = fields_base + fields_strat
 # Add fields to 3D polyline file
 arcpy.management.AddFields(polylinefile_3d, polyline_3d_fields)
 
-# %% 
+# %%
 # 11 Create empty 2d polyline file
 
 arcpy.env.overwriteOutput = True
@@ -325,7 +325,7 @@ polyline_2d_fields = fields_base + fields_strat + fields_2d
 #Add fields to 2D polyline file
 arcpy.management.AddFields(polylinefile_2d, polyline_2d_fields)
 
-#%% 
+#%%
 # 12 Create feature dataset to store wwpt files by xs
 # wwpt files need to be split by xs to ensure that each well is referencing the correct xsln
 arcpy.env.overwriteOutput = True
@@ -342,7 +342,7 @@ arcpy.management.CopyFeatures(wwpt_file_orig, wwpt_file_temp)
 #%% 12 Add fields to temporary wwpt point feature class
 # These fields will be populated by near analysis and measure on line functions
 
-wwpt_fields = [["NEAR_FID", "LONG"], ["NEAR_DIST", "DOUBLE"], ["NEAR_X", "DOUBLE"], 
+wwpt_fields = [["NEAR_FID", "LONG"], ["NEAR_DIST", "DOUBLE"], ["NEAR_X", "DOUBLE"],
                ["NEAR_Y", "DOUBLE"]]
 #add online distance field, necessary for plotting in the traditional display
 if display_system == "traditional":
@@ -355,7 +355,7 @@ for newfield in wwpt_fields:
         printit("Adding {0} field to well point file.".format(newfield[0]))
         arcpy.management.AddField(wwpt_file_temp, newfield[0], newfield[1])
 
-#%% 
+#%%
 # 13 Create a temporary xsln file and extend the lines equal to buffer distance
     # The extended xsln file is used to define 2d x coordinates of wells
     # to ensure that wells beyond the xsln plot correctly
@@ -388,19 +388,19 @@ with arcpy.da.SearchCursor(xsln_file_orig, cursor_fields) as xsln:
         # Fill geompoint list with list of vertices in the xsln as point geometry objects
         for vertex in line[0].getPart(0): #for each vertex in array of point objects
             point = arcpy.PointGeometry(arcpy.Point(vertex.X, vertex.Y))
-            geompointlist.append(point) 
+            geompointlist.append(point)
         # Set variables to define first two points
         beg_pt = geompointlist[0]
         beg_pt2 = geompointlist[1]
         # Calculate angle of beginning line segment from second point to beginning
         beg_angle_and_dist = beg_pt2.angleAndDistanceTo(beg_pt, "PLANAR")
-        beg_angle = beg_angle_and_dist[0] 
+        beg_angle = beg_angle_and_dist[0]
         # Set variables to define last two points
         end_pt = geompointlist[-1]
         end_pt2 = geompointlist[-2]
         # Calculate angle of end line segment
         end_angle_and_dist = end_pt2.angleAndDistanceTo(end_pt, "PLANAR")
-        end_angle = end_angle_and_dist[0] 
+        end_angle = end_angle_and_dist[0]
         # Calculate new beginning and end points based on angle of segment and buffer distance
         # extending lines equal to buffer distance should capture all of the points
         new_beg = beg_pt.pointFromAngleAndDistance(beg_angle, buffer_dist, method='PLANAR')
@@ -424,7 +424,7 @@ with arcpy.da.SearchCursor(xsln_file_orig, cursor_fields) as xsln:
             if display_system == "stacked":
                 cursor.insertRow([new_xsln_geometry, et_id, mn_et_id])
 
-#%% 
+#%%
 # 14 Populate near analysis fields in wwpt file
 # This is populating fields in wwpt file that are used later to create geometry
 arcpy.env.overwriteOutput = True
@@ -463,20 +463,20 @@ with arcpy.da.SearchCursor(xsln_temp, ['SHAPE@', xsln_etid_field]) as xsln:
                     # This is the "OnLine_DIST" which turns into 2d x coordinate after vertical exaggeration calculation
                     n = arcpy.Polyline.measureOnLine(xsln_geometry, point)
                     #subtract extended line distance so points before start nodes will have negative values
-                    well[3] = n - buffer_dist 
+                    well[3] = n - buffer_dist
                     # Update field values in wwpt table to track near x, y, and OnLine dist
                     wellpts.updateRow(well)
-        
+
 endtime = datetime.datetime.now()
 elapsed = endtime - starttime
 printit('Near analysis and line measuring completed at {0}. Elapsed time: {1}'.format(endtime, elapsed))
 
-#%% 
+#%%
 # 15 Delete wwpt_temp from feature dataset
 
 arcpy.management.Delete(wwpt_file_temp)
 
-#%% 
+#%%
 # 16 Merge together wwpt by xs files into one file
 
 arcpy.env.workspace = wwpt_by_xs_fd
@@ -501,7 +501,7 @@ with arcpy.da.SearchCursor(strat_table, ['OID@', strat_wellid_field, 'elev_top',
                                          'elev_bot']) as strat_records:
     for row in strat_records:
         strat_oid = row[0]
-        wellid = row[1] 
+        wellid = row[1]
         real_z_top = row[2] #true elevation
         real_z_bot = row[3] #true elevation
         if real_z_top == None:
@@ -510,7 +510,7 @@ with arcpy.da.SearchCursor(strat_table, ['OID@', strat_wellid_field, 'elev_top',
         if real_z_bot == None:
             printit("Error: Strat record {0} has no value in elev_bot field. Skipping.".format(strat_oid))
             continue
-       
+
         # Define two where_clauses for wwpt file query to handle numeric or text
         where_clause = "{0}={1}".format(wwpt_wellid_field, wellid) #where clause for numeric data type (default)
         if not wellid_is_numeric:
@@ -518,7 +518,7 @@ with arcpy.da.SearchCursor(strat_table, ['OID@', strat_wellid_field, 'elev_top',
         index_int = int(strat_oid)
         if index_int % 1000 == 0: #print statement every 1000th record to track progress
             printit('Creating polylines for strat record {0} out of {1}'.format(strat_oid, strat_count))
-        
+
         # Find well location that matches strat record well id and get coordinates and et_id information
         if display_system == "stacked":
             #mn_et_id needed for stacked
@@ -535,7 +535,7 @@ with arcpy.da.SearchCursor(strat_table, ['OID@', strat_wellid_field, 'elev_top',
                 real_y = well[1] # true well coordinate
                 dist = well[2]
                 et_id = well[3]
-                pct_dist = dist/buffer_dist*200        
+                pct_dist = dist/buffer_dist*200
                 #calculate x coordinate for 2d display
                 #calculation is different for each type of display
                 if display_system == "stacked":
@@ -543,7 +543,7 @@ with arcpy.da.SearchCursor(strat_table, ['OID@', strat_wellid_field, 'elev_top',
                     mn_et_id = well[4]
                     mn_etid_int = float(mn_et_id)
                 if display_system == "traditional":
-                    #Divide distance along line by vertical exaggeration 
+                    #Divide distance along line by vertical exaggeration
                     # to squish x axis for vertical exaggeration
                     x_coord_meters = well[4]
                     x_coord_feet = x_coord_meters/0.3048
@@ -559,7 +559,7 @@ with arcpy.da.SearchCursor(strat_table, ['OID@', strat_wellid_field, 'elev_top',
         # Turn 2 point objects into endpoints of a polyline segment
         real_polyline_geometry = arcpy.Polyline(real_array, spatialref, True)
         # Create insert cursor object to write geometry
-        insert_cursor_fields = ['SHAPE@', strat_wellid_field, xsln_etid_field, 'x_coord', 'y_coord', 
+        insert_cursor_fields = ['SHAPE@', strat_wellid_field, xsln_etid_field, 'x_coord', 'y_coord',
                                 'z_top', 'z_bot', 'strat_oid']
         if display_system == "stacked":
             insert_cursor_fields.append("mn_et_id")
@@ -569,7 +569,7 @@ with arcpy.da.SearchCursor(strat_table, ['OID@', strat_wellid_field, 'elev_top',
                 cursor3d.insertRow([real_polyline_geometry, wellid, et_id, real_x, real_y, real_z_top, real_z_bot, strat_oid])
             if display_system == "stacked":
                 cursor3d.insertRow([real_polyline_geometry, wellid, et_id, real_x, real_y, real_z_top, real_z_bot, strat_oid, mn_et_id])
-        
+
         # Create 2 point objects (top and bottom) from x and y coordinates for 2d geometry
         #first, calculate y coordinate in 2d space for each display system
         if display_system == "traditional":
@@ -588,7 +588,7 @@ with arcpy.da.SearchCursor(strat_table, ['OID@', strat_wellid_field, 'elev_top',
         # Turn 2 point objects into endpoints of a polyline segment
         polyline_geometry = arcpy.Polyline(array)
 
-        # Create insert cursor object 
+        # Create insert cursor object
         insert_cursor_fields_2d = ['SHAPE@', strat_wellid_field, xsln_etid_field, 'x_coord','y_coord',
                                    'z_top', 'z_bot', 'strat_oid', 'distance', 'pct_dist']
         if display_system == "stacked":
@@ -610,7 +610,7 @@ if len(nomatch_list) > 0:
     printit("Could not find matching well point for {0} stratigraphy table records. These strat records were skipped.".format(len(nomatch_list)))
 printit('Polyline geometry completed at {0}. Elapsed time: {1}'.format(endtime, elapsed))
 
-#%% 
+#%%
 # 18 Create list of stratigraphy fields based on which fields exist and which are relevant
 
 printit("Finding relevant stratigraphy data fields to join to output files.")
@@ -637,7 +637,7 @@ for field in fields_not_to_join:
     if field in relevant_strat_fields:
         relevant_strat_fields.remove(field)
 
-#%% 
+#%%
 # 19 Join stratigraphy fields to 2d and 3d polyline feature classes
 
 printit("Joining relevant stratigraphy fields to 3d polyline file.")
@@ -645,7 +645,7 @@ arcpy.management.JoinField(polylinefile_3d, 'strat_oid', strat_table, 'OBJECTID'
 printit("Joining relevant stratigraphy fields to 2d polyline file.")
 arcpy.management.JoinField(polylinefile_2d, 'strat_oid', strat_table, 'OBJECTID', relevant_strat_fields)
 
-#%% 
+#%%
 # 20 Create 2d polygon lixpys from 2d lines
 arcpy.env.overwriteOutput = True
 printit('Creating 2D lixpy polygons from 2D lines.')
@@ -677,7 +677,7 @@ arcpy.management.Sort(temp_polygon_file, polygon_file, strat_wellid_field)
 
 printit('Create 2D lixpy polygons completed.')
 
-#%% 
+#%%
 # 21 Delete temporary files/fields
 
 printit("Deleting temporary files from output geodatabase.")
@@ -687,9 +687,9 @@ try:
     arcpy.management.Delete(wwpt_merge)
     arcpy.management.Delete(xsln_temp)
 except:
-    printit("Warning: unable to delete all temporary files.")                          
-                             
-#%% 
+    printit("Warning: unable to delete all temporary files.")
+
+#%%
 # 22 Record and print tool end time
 toolend = datetime.datetime.now()
 toolelapsed = toolend - toolstart

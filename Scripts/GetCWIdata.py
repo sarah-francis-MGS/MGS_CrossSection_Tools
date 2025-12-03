@@ -9,7 +9,7 @@ This script gets CWI data for a buffered cross section line file
 and creates a well point file and strat table.
 '''
 
-# %% 
+# %%
 # 1 Import modules and define functions
 
 import arcpy
@@ -28,7 +28,7 @@ def printit(message):
 def printwarning(message):
     arcpy.AddWarning(message)
     print(message)
-        
+
 def printerror(message):
     arcpy.AddError(message)
     print(message)
@@ -39,7 +39,7 @@ def FileExists(file):
     if not arcpy.Exists(file):
         printerror("Error: {0} does not exist.".format(os.path.basename(file)))
     #else: printit("{0} found.".format(os.path.basename(file)))
-    
+
 def FieldExists(dataset, field_name):
     if field_name in [field.name for field in arcpy.ListFields(dataset)]:
         return True
@@ -56,12 +56,12 @@ def correctGeometry(file, geometry1, geometry2):
             printerror("Error: {0} does not have {1} geometry.".format(os.path.basename(file), geometry1))
     #else: printit("{0} has {1} geometry.".format(os.path.basename(file), geometry))
 
-# %% 
+# %%
 # 2 Set parameters to work in testing and compiled geopocessing tool
 
-# !!!!!!!!!!!!!!!!!!!!!! 
-#change the variable below if running in an IDE. 
-# MAKE SURE TO CHANGE BACK TO "PRO" WHEN FINISHED 
+# !!!!!!!!!!!!!!!!!!!!!!
+#change the variable below if running in an IDE.
+# MAKE SURE TO CHANGE BACK TO "PRO" WHEN FINISHED
 #----------------------------------------------------------------
 #run_location = "ide"
 run_location = "Pro"
@@ -99,7 +99,7 @@ wwpt_temp = os.path.join(output_gdb, 'wwpt_temp')
 
 arcpy.analysis.Clip(state_wwpt, xsln_buffer, wwpt_temp)
 
-#%% 
+#%%
 # 4 Join attributes from xsln to wwpt
 
 printit("Spatial join xsln attributes to well points.")
@@ -119,7 +119,7 @@ date = str(month + day + year)
 arcpy.conversion.FeatureClassToFeatureClass(wwpt, output_gdb, "wwpt" + date)
 '''
 
-#%% 
+#%%
 # 5 Make strat table
 printit("Clipping statewide stratigraphy data with xsln buffer.")
 
@@ -147,7 +147,7 @@ try:
 except:
     arcpy.conversion.TableToTable(temp_table_view, output_gdb, "strat_cwi")
 
-#%% 
+#%%
 # 6 Delete temporary files
 printit("Deleting temporary files.")
 try: arcpy.management.Delete(wwpt_temp)
@@ -159,7 +159,7 @@ except: printit("Unable to delete {0}.".format(strat_points_temp))
 try: arcpy.management.Delete(strat_points_temp2)
 except: printit("Unable to delete {0}.".format(strat_points_temp2))
 
-# %% 
+# %%
 # 7 Record and print tool end time
 toolend = datetime.datetime.now()
 toolelapsed = toolend - toolstart
