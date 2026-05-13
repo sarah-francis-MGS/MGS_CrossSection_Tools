@@ -86,12 +86,12 @@ if run_location == "Pro":
 
 else:
     # hard-coded parameters used for testing
-    profiles_3d = r'D:\Cross_Section_Programming\112123\script_testing\Steele_Script_Testing.gdb\bedrock_topo_dem_30m_profiles3d' #raster profiles in 3D (not xsec view)
-    xsln_file = r'D:\Cross_Section_Programming\112123\script_testing\Steele_Script_Testing.gdb\xsln'
+    profiles_3d = r'D:\Faribault_Local\Profile_Intersect_Testing.gdb\dem30dnr_profiles3d' #raster profiles in 3D (not xsec view)
+    xsln_file = r'D:\Faribault_Local\Profile_Intersect_Testing.gdb\xsln'
     xsec_id_field = "et_id" #cross section ID in surface profiles
-    polygons_orig = r'D:\Cross_Section_Programming\112123\script_testing\demo_data_steele.gdb\Bedrock_polys' #polygons to intersect
-    display_system = "traditional" #"stacked" or "traditional"
-    output_dir = r'D:\Cross_Section_Programming\112123\script_testing\Steele_Script_Testing.gdb' #output gdb
+    polygons_orig = r'D:\Faribault_Local\Profile_Intersect_Testing.gdb\SurficialGeologyPolys_021626' #polygons to intersect
+    display_system = "stacked" #"stacked" or "traditional"
+    output_dir = r'D:\Faribault_Local\Profile_Intersect_Testing.gdb' #output gdb
     #parameter below appears if display_system == "traditional"
     vertical_exaggeration_in = 50
 
@@ -113,6 +113,9 @@ if display_system == "traditional":
 desc = arcpy.Describe(profiles_3d)
 if desc.hasZ == False:
     printerror("!!ERROR!! Surface profiles do not have z 3D geometry. Select 3D profiles for this parameter and try again.")
+
+#check that polygons have "MapUnit" field
+FieldExists(polygons_orig, "MapUnit")
 
 #Check that  profiles have mn_et_id field
 if display_system == "stacked":
@@ -155,6 +158,7 @@ else:
 
 printit("Intersecting temp polygons with 3d profiles and creating temporary line file.")
 
+arcpy.env.overwriteOutput = True
 #get filename of output
 poly_filename = os.path.basename(polygons_orig)
 if display_system == "stacked":
@@ -171,8 +175,12 @@ output_line_fc_temp_multi = os.path.join(output_dir, output_name + "_temp_line_3
 #create temporary 3D intersect file
 arcpy.analysis.Intersect([profiles_3d, polygons], output_line_fc_temp_multi, 'NO_FID', '', 'LINE')
 #convert multipart to singlepart
+output_line_fc_temp2 = os.path.join(output_dir, output_name + "_temp_line_3d_2")
+arcpy.management.MultipartToSinglepart(output_line_fc_temp_multi, output_line_fc_temp2)
+#dissolve by unit
+#for some reason, the multi to single part tool split up some lines with the same unit. dissolve seems to fix this.
 output_line_fc_temp = os.path.join(output_dir, output_name + "_temp_line_3d")
-arcpy.management.MultipartToSinglepart(output_line_fc_temp_multi, output_line_fc_temp)
+arcpy.management.Dissolve(output_line_fc_temp2, output_line_fc_temp, ["MapUnit", "et_id", "mn_et_id", unique_id_field], '', 'SINGLE_PART')
 
 #%% 7 Create empty line file and add fields
 
@@ -264,6 +272,8 @@ try: arcpy.management.Delete(output_line_fc_temp_multi)
 except: printit("Unable to delete temporary file {0}".format(output_line_fc_temp_multi))
 try: arcpy.management.Delete(output_line_fc_temp)
 except: printit("Unable to delete temporary file {0}".format(output_line_fc_temp))
+try: arcpy.management.Delete(output_line_fc_temp2)
+except: printit("Unable to delete temporary file {0}".format(output_line_fc_temp2))
 
 #%%
 # 10 Create empty point file and add fields

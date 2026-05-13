@@ -270,7 +270,7 @@ arcpy.overwriteOutput = True
 input_file_name = os.path.basename(in_fc)
 out_fc_name = input_file_name + "_" + input_xs_num
 out_fc = os.path.join(out_fd, out_fc_name)
-
+arcpy.overwriteOutput = True
 printit("Creating empty output feature class {0}.".format(out_fc))
 
 #arcpy.management.CreateFeatureclass(out_fd, out_fc_name, shape, '', 'DISABLED', 'DISABLED')

@@ -147,7 +147,8 @@ for raster in rasters_list:
     printit("Creating 3d profiles for {0} raster surface.".format(name))
     # Use interpolate shape to create 3d profiles along xs lines
     profiles_3d_multi = os.path.join(output_gdb_location, name + "_profiles3d_multi")
-    arcpy.ddd.InterpolateShape(raster, xsln_file_orig, profiles_3d_multi, 10)
+    #arcpy.ddd.InterpolateShape(raster, xsln_file_orig, profiles_3d_multi, '', '', "NEAREST")
+    arcpy.ddd.InterpolateShape(raster, xsln_file_orig, profiles_3d_multi, 10, '', 'BILINEAR')
     #arcpy.ddd.InterpolateShape(raster, xsln_file_orig, profiles_3d_multi)
     # Convert to single part in case there was a gap in the raster
     printit("Converting multipart 3d profiles into single part for {0} raster surface.".format(name))
